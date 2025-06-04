@@ -1,7 +1,7 @@
-##Laravel
+## Laravel
 Run `composer require guzzlehttp/guzzle`
 
-##Flask Setup
+## Flask Setup
 Run `pip install flask torchvision torch pillow`
-###(Optional)
+### (Optional)
 Run `pip install flask-cors`
