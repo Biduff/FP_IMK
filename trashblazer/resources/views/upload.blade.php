@@ -33,11 +33,11 @@
                 </a>
 
                 <!-- Toggle Icon (clickable) -->
-                <a href="{{ route('upload') }}"
+                <a href="{{ route('scan') }}"
                 class="mx-2 w-12 h-6 bg-[#1E453E] rounded-full relative group focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1E453E] transition-all duration-300">
                     <div class="w-5 h-5 bg-white rounded-full absolute top-0.5
-                                {{ request()->routeIs('scan') ? 'left-0.5' : 'right-0.5' }}
-                                transition-all duration-300 group-hover:scale-110">
+                             {{ request()->routeIs('upload') ? 'right-0.5' : 'left-0.5' }}
+                             transition-all duration-300 group-hover:scale-110">
                     </div>
                 </a>
 
