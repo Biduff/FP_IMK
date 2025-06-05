@@ -1,4 +1,5 @@
 ## Laravel
+Run `composer install`
 Run `composer require guzzlehttp/guzzle`
 
 ## Flask Setup
