@@ -53,54 +53,89 @@
         <div class="max-w-4xl mx-auto">
             <!-- Show existing picture if available -->
             @if($analyzer && $analyzer->picture)
-                <div class="mb-4">
-                    <img src="{{ asset('storage/' . $analyzer->picture) }}" alt="Uploaded Picture" class="max-w-xs rounded-lg shadow">
-                    <form action="{{ route('upload.remove') }}" method="POST" class="mt-2">
+                <div class="mb-8">
+                    <div class="bg-gray-200 border-2 border-gray-400 rounded-lg aspect-video flex items-center justify-center relative overflow-hidden">
+                        <img src="{{ asset('storage/' . $analyzer->picture) }}" alt="Uploaded Picture" class="w-full h-full object-cover rounded-lg">
+                    </div>
+                    <form action="{{ route('upload.remove') }}" method="POST" class="mt-4 text-center">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300">
                             Remove Picture
                         </button>
                     </form>
                 </div>
+            @else
+                <!-- Upload Area -->
+                <div id="dropZone" class="bg-gray-200 border-2 border-gray-400 rounded-lg mb-8 aspect-video flex items-center justify-center relative overflow-hidden">
+                    <div id="uploadIcon" class="text-center">
+                        <svg class="w-24 h-24 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <p class="text-gray-500 text-lg">Drop image here or click to upload</p>
+                    </div>
+                    <img id="preview" class="hidden w-full h-full object-cover rounded-lg" alt="Preview">
+                    <div id="dragOverlay" class="absolute inset-0 bg-[#1E453E] bg-opacity-20 border-4 border-dashed border-[#1E453E] rounded-lg hidden items-center justify-center">
+                        <p class="text-[#1E453E] text-xl font-semibold">Drop image here</p>
+                    </div>
+                </div>
             @endif
-
-            <!-- Upload Area -->
-            <div id="dropZone" class="bg-gray-200 border-2 border-gray-400 rounded-lg mb-8 aspect-video flex items-center justify-center relative overflow-hidden">
-                <div class="text-center">
-                    <svg class="w-24 h-24 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                    </svg>
-                    <img id="preview" class="hidden w-full h-full object-cover rounded-lg shadow" alt="Preview">
-                </div>
-                <div id="dragOverlay" class="absolute inset-0 bg-[#1E453E] bg-opacity-20 border-4 border-dashed border-[#1E453E] rounded-lg hidden items-center justify-center">
-                    <p class="text-[#1E453E] text-xl font-semibold">Drop image here</p>
-                </div>
-            </div>
 
             <form method="POST" action="{{ route('upload.process') }}" enctype="multipart/form-data" id="uploadForm">
                 @csrf
-                <div class="flex justify-center mb-8">
-                    <label for="imageUpload" class="bg-white border border-gray-300 text-[#1E453E] px-6 py-3 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-lg cursor-pointer flex items-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
-                        <span>Upload</span>
-                    </label>
-                    <input type="file" name="image" id="imageUpload" accept="image/*" class="hidden" required>
-                </div>
-                <div class="flex justify-center">
-                    <button type="submit" id="submitBtn" class="bg-[#1E453E] text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                        Analyze Image
-                    </button>
-                </div>
+                @if(!($analyzer && $analyzer->picture))
+                    <div class="flex justify-center mb-8">
+                        <label for="imageUpload" class="bg-white border border-gray-300 text-[#1E453E] px-6 py-3 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-lg cursor-pointer flex items-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <span>Choose File</span>
+                        </label>
+                        <input type="file" name="image" id="imageUpload" accept="image/*" class="hidden" required>
+                    </div>
+                    <div class="flex justify-center">
+                        <button type="submit" id="submitBtn" class="bg-[#1E453E] text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            Analyze Image
+                        </button>
+                    </div>
+                @else
+                    <div class="flex justify-center">
+                        <button type="submit" class="bg-[#1E453E] text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                            Re-analyze Image
+                        </button>
+                    </div>
+                    <input type="hidden" name="use_existing" value="1">
+                @endif
             </form>
+
+            <!-- Results -->
+            @if(isset($data))
+                <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+                    <h3 class="text-2xl font-bold text-[#1E453E] mb-4">Prediction Results:</h3>
+                    <div class="space-y-3">
+                        @foreach($data as $result)
+                            <div class="flex justify-between items-center p-3 bg-[#EBF2B3] rounded-lg">
+                                <span class="text-[#1E453E] font-semibold text-lg">{{ $result['class'] }}</span>
+                                <span class="bg-[#1E453E] text-white px-3 py-1 rounded-full text-sm font-medium">
+                                    {{ number_format($result['confidence'] * 100, 1) }}%
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
 
             @if($errors->any())
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mt-4">
                     @foreach($errors->all() as $error)
                         <p>{{ $error }}</p>
                     @endforeach
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mt-4">
+                    {{ session('success') }}
                 </div>
             @endif
         </div>
@@ -112,52 +147,65 @@
         const imageUpload = document.getElementById('imageUpload');
         const preview = document.getElementById('preview');
         const submitBtn = document.getElementById('submitBtn');
+        const uploadIcon = document.getElementById('uploadIcon');
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dragOverlay.classList.remove('hidden');
-            dragOverlay.classList.add('flex');
-        });
+        // Only add event listeners if elements exist (when no existing image)
+        if (dropZone && imageUpload) {
+            dropZone.addEventListener('click', () => {
+                imageUpload.click();
+            });
 
-        dropZone.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            if (!dropZone.contains(e.relatedTarget)) {
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dragOverlay.classList.remove('hidden');
+                dragOverlay.classList.add('flex');
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                if (!dropZone.contains(e.relatedTarget)) {
+                    dragOverlay.classList.add('hidden');
+                    dragOverlay.classList.remove('flex');
+                }
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
                 dragOverlay.classList.add('hidden');
                 dragOverlay.classList.remove('flex');
-            }
-        });
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type.startsWith('image/')) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(files[0]);
+                    imageUpload.files = dataTransfer.files;
+                    showPreview(files[0]);
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                }
+            });
 
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dragOverlay.classList.add('hidden');
-            dragOverlay.classList.remove('flex');
-            const files = e.dataTransfer.files;
-            if (files.length > 0 && files[0].type.startsWith('image/')) {
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(files[0]);
-                imageUpload.files = dataTransfer.files;
-                showPreview(files[0]);
-                submitBtn.disabled = false;
-            }
-        });
+            imageUpload.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    showPreview(e.target.files[0]);
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                }
+            });
 
-        imageUpload.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                showPreview(e.target.files[0]);
-                submitBtn.disabled = false;
+            function showPreview(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    if (uploadIcon) {
+                        uploadIcon.classList.add('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
             }
-        });
-
-        function showPreview(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                preview.src = e.target.result;
-                preview.classList.remove('hidden');
-                document.getElementById('uploadIcon').classList.add('hidden');
-            };
-            reader.readAsDataURL(file);
         }
-
     </script>
 </body>
 </html>

@@ -45,45 +45,76 @@ class ScanController extends Controller
                 $data = $response->json();
                 return view('scan', ['data' => $data, 'analyzer' => (object)['picture' => $path]]);
             } else {
-                return back()->withErrors(['error' => 'Failed to process image']);
+                Log::error('Flask API Error: ' . $response->body());
+                return back()->withErrors(['error' => 'Failed to process image: ' . $response->body()]);
             }
         } catch (\Exception $e) {
             Log::error('Scan process error: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'An error occurred while processing the image']);
+            return back()->withErrors(['error' => 'An error occurred while processing the image: ' . $e->getMessage()]);
         }
     }
 
     public function uploadProcess(Request $request)
     {
         try {
-            $request->validate([
-                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
+            // Check if we're using existing image
+            if ($request->has('use_existing')) {
+                $imagePath = session('uploaded_image');
+                if (!$imagePath || !Storage::disk('public')->exists($imagePath)) {
+                    return back()->withErrors(['error' => 'No existing image found']);
+                }
+                
+                // Use existing image
+                $fullPath = storage_path('app/public/' . $imagePath);
+                $filename = basename($imagePath);
+                
+                // Send existing image to Flask API
+                $response = Http::attach(
+                    'image',
+                    file_get_contents($fullPath),
+                    $filename
+                )->post('http://127.0.0.1:5000/predict');
 
-            $image = $request->file('image');
-
-            // Save to storage
-            $path = $image->store('uploads', 'public');
-            session(['uploaded_image' => $path]);
-
-            // Send image to Flask API
-            $response = Http::attach(
-                'image',
-                file_get_contents($image->getRealPath()),
-                $image->getClientOriginalName()
-            )->post('http://127.0.0.1:5000/predict');
-
-            if ($response->successful()) {
-                $data = $response->json();
-                return view('upload', ['data' => $data, 'analyzer' => (object)['picture' => $path]]);
+                if ($response->successful()) {
+                    $data = $response->json();
+                    return view('upload', ['data' => $data, 'analyzer' => (object)['picture' => $imagePath]]);
+                } else {
+                    Log::error('Flask API Error: ' . $response->body());
+                    return back()->withErrors(['error' => 'Failed to process image: ' . $response->body()]);
+                }
             } else {
-                return back()->withErrors(['error' => 'Failed to process image']);
+                // Handle new image upload
+                $request->validate([
+                    'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                ]);
+
+                $image = $request->file('image');
+
+                // Save to storage
+                $path = $image->store('uploads', 'public');
+                session(['uploaded_image' => $path]);
+
+                // Send image to Flask API
+                $response = Http::attach(
+                    'image',
+                    file_get_contents($image->getRealPath()),
+                    $image->getClientOriginalName()
+                )->post('http://127.0.0.1:5000/predict');
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    return view('upload', ['data' => $data, 'analyzer' => (object)['picture' => $path]]);
+                } else {
+                    Log::error('Flask API Error: ' . $response->body());
+                    return back()->withErrors(['error' => 'Failed to process image: ' . $response->body()]);
+                }
             }
         } catch (\Exception $e) {
             Log::error('Upload process error: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'An error occurred while processing the image']);
+            return back()->withErrors(['error' => 'An error occurred while processing the image: ' . $e->getMessage()]);
         }
     }
+                
 
     public function removePicture()
     {
