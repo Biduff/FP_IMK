@@ -81,9 +81,9 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('upload.process') }}" enctype="multipart/form-data" id="uploadForm">
-                @csrf
-                @if(!($analyzer && $analyzer->picture))
+            @if(!($analyzer && $analyzer->picture))
+                <form method="POST" action="{{ route('upload.process') }}" enctype="multipart/form-data" id="uploadForm">
+                    @csrf
                     <div class="flex justify-center mb-8">
                         <label for="imageUpload" class="bg-white border border-gray-300 text-[#1E453E] px-6 py-3 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-lg cursor-pointer flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,15 +98,18 @@
                             Analyze Image
                         </button>
                     </div>
-                @else
+                </form>
+            @else
+                <form method="POST" action="{{ route('upload.process') }}" id="reAnalyzeForm">
+                    @csrf
+                    <input type="hidden" name="use_existing" value="1">
                     <div class="flex justify-center">
                         <button type="submit" class="bg-[#1E453E] text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg">
                             Re-analyze Image
                         </button>
                     </div>
-                    <input type="hidden" name="use_existing" value="1">
-                @endif
-            </form>
+                </form>
+            @endif
 
             <!-- Results -->
             @if(isset($data))
@@ -148,9 +151,10 @@
         const preview = document.getElementById('preview');
         const submitBtn = document.getElementById('submitBtn');
         const uploadIcon = document.getElementById('uploadIcon');
+        const uploadForm = document.getElementById('uploadForm');
 
         // Only add event listeners if elements exist (when no existing image)
-        if (dropZone && imageUpload) {
+        if (dropZone && imageUpload && uploadForm) {
             dropZone.addEventListener('click', () => {
                 imageUpload.click();
             });
@@ -205,6 +209,27 @@
                 };
                 reader.readAsDataURL(file);
             }
+
+            // Handle form submission
+            uploadForm.addEventListener('submit', function(e) {
+                if (!imageUpload.files || imageUpload.files.length === 0) {
+                    e.preventDefault();
+                    alert('Please select an image file first.');
+                    return false;
+                }
+            });
+        }
+
+        // Handle re-analyze form
+        const reAnalyzeForm = document.getElementById('reAnalyzeForm');
+        if (reAnalyzeForm) {
+            reAnalyzeForm.addEventListener('submit', function(e) {
+                const button = e.target.querySelector('button[type="submit"]');
+                if (button) {
+                    button.disabled = true;
+                    button.textContent = 'Analyzing...';
+                }
+            });
         }
     </script>
 </body>

@@ -10,3 +10,5 @@ Route::post('/scan/process', [ScanController::class, 'process'])->name('scan.pro
 Route::get('/upload', [ScanController::class, 'upload'])->name('upload');
 Route::post('/upload/process', [ScanController::class, 'uploadProcess'])->name('upload.process');
 Route::delete('/upload/remove', [ScanController::class, 'removePicture'])->name('upload.remove');
+
+

@@ -123,6 +123,6 @@ class ScanController extends Controller
             Storage::disk('public')->delete($imagePath);
         }
         session()->forget('uploaded_image');
-        return back()->with('success', 'Picture removed successfully.');
+        return redirect()->route('upload')->with('success', 'Picture removed successfully.');
     }
 }
