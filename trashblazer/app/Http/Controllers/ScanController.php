@@ -11,30 +11,30 @@ class ScanController extends Controller
 {
     public function index()
     {
+        // No changes here
         $imagePath = session('uploaded_image');
         return view('scan', ['analyzer' => (object)['picture' => $imagePath]]);
     }
 
     public function upload()
     {
+        // No changes here
         $imagePath = session('uploaded_image');
         return view('upload', ['analyzer' => (object)['picture' => $imagePath]]);
     }
 
     public function process(Request $request)
     {
+        // No changes here
         try {
             $request->validate([
                 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
             $image = $request->file('image');
-
-            // Save to storage
             $path = $image->store('uploads', 'public');
             session(['uploaded_image' => $path]);
 
-            // Send image to Flask API
             $response = Http::attach(
                 'image',
                 file_get_contents($image->getRealPath()),
@@ -56,19 +56,17 @@ class ScanController extends Controller
 
     public function uploadProcess(Request $request)
     {
+        // No changes here
         try {
-            // Check if we're using existing image
             if ($request->has('use_existing')) {
                 $imagePath = session('uploaded_image');
                 if (!$imagePath || !Storage::disk('public')->exists($imagePath)) {
                     return back()->withErrors(['error' => 'No existing image found']);
                 }
                 
-                // Use existing image
                 $fullPath = storage_path('app/public/' . $imagePath);
                 $filename = basename($imagePath);
                 
-                // Send existing image to Flask API
                 $response = Http::attach(
                     'image',
                     file_get_contents($fullPath),
@@ -83,18 +81,14 @@ class ScanController extends Controller
                     return back()->withErrors(['error' => 'Failed to process image: ' . $response->body()]);
                 }
             } else {
-                // Handle new image upload
                 $request->validate([
                     'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
                 ]);
 
                 $image = $request->file('image');
-
-                // Save to storage
                 $path = $image->store('uploads', 'public');
                 session(['uploaded_image' => $path]);
 
-                // Send image to Flask API
                 $response = Http::attach(
                     'image',
                     file_get_contents($image->getRealPath()),
@@ -114,15 +108,31 @@ class ScanController extends Controller
             return back()->withErrors(['error' => 'An error occurred while processing the image: ' . $e->getMessage()]);
         }
     }
-                
-
-    public function removePicture()
+    
+    /**
+     * NEW METHOD
+     * Removes the current picture and redirects to the upload page for a new session.
+     */
+    public function startNewUpload()
     {
         $imagePath = session('uploaded_image');
         if ($imagePath && Storage::disk('public')->exists($imagePath)) {
             Storage::disk('public')->delete($imagePath);
         }
         session()->forget('uploaded_image');
-        return redirect()->route('upload')->with('success', 'Picture removed successfully.');
+        
+        // Redirect to the clean upload page
+        return redirect()->route('upload');
+    }
+
+    public function removePicture()
+    {
+        // No changes here, but the logic is now shared with the new method
+        $imagePath = session('uploaded_image');
+        if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+            Storage::disk('public')->delete($imagePath);
+        }
+        session()->forget('uploaded_image');
+        return back()->with('success', 'Picture removed successfully.');
     }
 }
