@@ -13,7 +13,7 @@
             <a href="{{ route('scan') }}" class="text-white hover:text-[#EBF2B3] transition-colors duration-200 text-lg font-medium">
                 Scan/Upload
             </a>
-            <a href="#" class="text-white hover:text-[#EBF2B3] transition-colors duration-200 text-lg font-medium">
+            <a href="{{ route('tipsntricks.index') }}" class="text-white hover:text-[#EBF2B3] transition-colors duration-200 text-lg font-medium">
                 Tips & Tricks
             </a>
         </div>
