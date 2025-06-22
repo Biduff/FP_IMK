@@ -7,7 +7,7 @@
         </div>
         <!-- Navigation Links -->
         <div class="hidden md:flex items-center space-x-8">
-            <a href="#" class="text-white hover:text-[#EBF2B3] transition-colors duration-200 text-lg font-medium">
+            <a href="{{ route('education') }}" class="text-white hover:text-[#EBF2B3] transition-colors duration-200 text-lg font-medium">
                 Education
             </a>
             <a href="{{ route('scan') }}" class="text-white hover:text-[#EBF2B3] transition-colors duration-200 text-lg font-medium">

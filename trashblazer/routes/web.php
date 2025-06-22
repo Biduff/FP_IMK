@@ -27,3 +27,10 @@ Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('adm
 Route::post('/admin/tipsntricks', [AdminController::class, 'store'])->name('admin.store');
 Route::put('/admin/tipsntricks/{id}', [AdminController::class, 'update'])->name('admin.update');
 Route::delete('/admin/tipsntricks/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
+Route::get('/education', function () {
+    return view('education');
+})->name('education');
+
+Route::get('/scan', function () {
+    return view('scan');
+})->name('scan');
