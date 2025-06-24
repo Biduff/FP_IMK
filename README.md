@@ -1,3 +1,6 @@
+## Clone Repository
+Run `git clone https://github.com/Biduff/FP_IMK.git`
+
 ## Laravel
 Run `composer install` on trashblazer directory
 
